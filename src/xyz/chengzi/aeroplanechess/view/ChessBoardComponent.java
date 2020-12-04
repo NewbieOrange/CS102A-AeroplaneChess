@@ -11,12 +11,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ChessBoardComponent extends JComponent implements Listenable<InputListener>, ChessBoardListener {
     private static final Color[] BOARD_COLORS = {Color.YELLOW, Color.BLUE, Color.GREEN, Color.RED};
-    private static final Color[] PIECE_COLORS = {Color.YELLOW.darker(), Color.BLUE.darker(),
-            Color.GREEN.darker(), Color.RED.darker()};
+    private static final Color[] PIECE_COLORS = Arrays.stream(BOARD_COLORS).map(Color::darker).toArray(Color[]::new);
 
     private final List<InputListener> listenerList = new ArrayList<>();
     private final SquareComponent[][] gridComponents;
