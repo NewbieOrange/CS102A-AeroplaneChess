@@ -1,5 +1,6 @@
 package xyz.chengzi.aeroplanechess.controller;
 
+import xyz.chengzi.aeroplanechess.listener.ChessBoardListener;
 import xyz.chengzi.aeroplanechess.listener.GameStateListener;
 import xyz.chengzi.aeroplanechess.listener.InputListener;
 import xyz.chengzi.aeroplanechess.listener.Listenable;
@@ -14,7 +15,7 @@ import xyz.chengzi.aeroplanechess.view.SquareComponent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameController implements InputListener, Listenable<GameStateListener> {
+public class GameController implements InputListener, ChessBoardListener, Listenable<GameStateListener> {
     private final List<GameStateListener> listenerList = new ArrayList<>();
     private final ChessBoardComponent view;
     private final ChessBoard model;
@@ -27,7 +28,7 @@ public class GameController implements InputListener, Listenable<GameStateListen
         this.model = chessBoard;
 
         view.registerListener(this);
-        model.registerListener(view);
+        model.registerListener(this);
     }
 
     public ChessBoardComponent getView() {
@@ -78,6 +79,34 @@ public class GameController implements InputListener, Listenable<GameStateListen
                 listenerList.forEach(listener -> listener.onPlayerStartRound(currentPlayer));
             }
         }
+    }
+
+    @Override
+    public void onChessPiecePlace(ChessBoardLocation location, ChessPiece piece) {
+        view.setChessAtGrid(location, piece.getPlayer());
+        view.repaint();
+    }
+
+    @Override
+    public void onChessPieceRemove(ChessBoardLocation location) {
+        view.removeChessAtGrid(location);
+        view.repaint();
+    }
+
+    @Override
+    public void onChessBoardReload(ChessBoard board) {
+        for (int color = 0; color < 4; color++) {
+            for (int index = 0; index < board.getDimension(); index++) {
+                ChessBoardLocation location = new ChessBoardLocation(color, index);
+                ChessPiece piece = board.getChessPieceAt(location);
+                if (piece != null) {
+                    view.setChessAtGrid(location, piece.getPlayer());
+                } else {
+                    view.removeChessAtGrid(location);
+                }
+            }
+        }
+        view.repaint();
     }
 
     @Override

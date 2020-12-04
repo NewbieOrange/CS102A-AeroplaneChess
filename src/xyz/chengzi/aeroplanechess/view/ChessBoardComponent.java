@@ -1,22 +1,20 @@
 package xyz.chengzi.aeroplanechess.view;
 
-import xyz.chengzi.aeroplanechess.listener.ChessBoardListener;
 import xyz.chengzi.aeroplanechess.listener.InputListener;
 import xyz.chengzi.aeroplanechess.listener.Listenable;
-import xyz.chengzi.aeroplanechess.model.ChessBoard;
 import xyz.chengzi.aeroplanechess.model.ChessBoardLocation;
-import xyz.chengzi.aeroplanechess.model.ChessPiece;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.IntFunction;
 
-public class ChessBoardComponent extends JComponent implements Listenable<InputListener>, ChessBoardListener {
+public class ChessBoardComponent extends JComponent implements Listenable<InputListener> {
     private static final Color[] BOARD_COLORS = {Color.YELLOW, Color.BLUE, Color.GREEN, Color.RED};
-    private static final Color[] PIECE_COLORS = {Color.YELLOW.darker(), Color.BLUE.darker(),
-            Color.GREEN.darker(), Color.RED.darker()};
+    private static final Color[] PIECE_COLORS = Arrays.stream(BOARD_COLORS).map(Color::darker).toArray(Color[]::new);
 
     private final List<InputListener> listenerList = new ArrayList<>();
     private final SquareComponent[][] gridComponents;
@@ -97,6 +95,10 @@ public class ChessBoardComponent extends JComponent implements Listenable<InputL
         getGridAt(location).add(new ChessComponent(color));
     }
 
+    public void setChessAtGrid(ChessBoardLocation location, int player) {
+        setChessAtGrid(location, PIECE_COLORS[player]);
+    }
+
     public void removeChessAtGrid(ChessBoardLocation location) {
         // Note: re-validation is required after remove / removeAll
         getGridAt(location).removeAll();
@@ -121,34 +123,6 @@ public class ChessBoardComponent extends JComponent implements Listenable<InputL
                 }
             }
         }
-    }
-
-    @Override
-    public void onChessPiecePlace(ChessBoardLocation location, ChessPiece piece) {
-        setChessAtGrid(location, PIECE_COLORS[piece.getPlayer()]);
-        repaint();
-    }
-
-    @Override
-    public void onChessPieceRemove(ChessBoardLocation location) {
-        removeChessAtGrid(location);
-        repaint();
-    }
-
-    @Override
-    public void onChessBoardReload(ChessBoard board) {
-        for (int color = 0; color < 4; color++) {
-            for (int index = 0; index < board.getDimension(); index++) {
-                ChessBoardLocation location = new ChessBoardLocation(color, index);
-                ChessPiece piece = board.getChessPieceAt(location);
-                if (piece != null) {
-                    setChessAtGrid(location, PIECE_COLORS[piece.getPlayer()]);
-                } else {
-                    removeChessAtGrid(location);
-                }
-            }
-        }
-        repaint();
     }
 
     @Override
